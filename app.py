@@ -169,5 +169,6 @@ class Handler(BaseHTTPRequestHandler):
         pass
 
 if __name__ == "__main__":
-    print("Сайт: http://127.0.0.1:%d  (остановка: Ctrl+C)" % PORT)
-    ThreadingHTTPServer(("127.0.0.1", PORT), Handler).serve_forever()
+    HOST = "0.0.0.0"
+    print(f"Сайт запущен на {HOST}:{PORT}")
+    ThreadingHTTPServer((HOST, PORT), Handler).serve_forever()
