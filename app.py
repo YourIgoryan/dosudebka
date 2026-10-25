@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Досудебка: сайт для самозанятых. Только стандартная библиотека.
 Запуск: python app.py  ->  http://127.0.0.1:8000"""
-import csv, html, json, os, time
+import csv, html, json, os, threading, time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, urlparse
 
@@ -12,6 +12,7 @@ e = html.escape
 NAV = [("/", "Главная"), ("/consult", "Консультации"), ("/templates", "Шаблоны"),
        ("/blog", "Блог"), ("/diagnostic", "Диагностика"), ("/book", "Записаться")]
 TOPICS = ["Диагностика", "Претензия", "Претензия и суд", "Разбор с юристом", "Договор для моей работы", "Другое"]
+LOCK = threading.Lock()
 EVID = {"chat": 2, "handed": 2, "act": 1, "check": 1, "partial": 1, "confess": 2}
 
 def read(*parts):
@@ -152,12 +153,16 @@ class Handler(BaseHTTPRequestHandler):
             return self.reply(400, p_book("Укажите имя и способ связи.", f))
         if f.get("consent") != "1":
             return self.reply(400, p_book("Нужно согласие на обработку данных.", f))
-        new = not os.path.exists(BOOKINGS)
-        with open(BOOKINGS, "a", newline="", encoding="utf-8-sig") as fh:
-            w = csv.writer(fh)
-            if new:
-                w.writerow(["время", "имя", "контакт", "тема", "сообщение"])
-            w.writerow([time.strftime("%Y-%m-%d %H:%M"), f["name"][:80], f["contact"][:80], f.get("topic", "")[:60], f.get("msg", "")[:1500]])
+        row = [time.strftime("%Y-%m-%d %H:%M"), f["name"][:80], f["contact"][:80], f.get("topic", "")[:60], f.get("msg", "")[:1500]]
+        row = [("'" + c if c.startswith(("=", "+", "-", "@")) else c) for c in row]  # защита от формул при открытии в Excel
+        with LOCK:  # один писатель за раз
+            os.makedirs(os.path.dirname(BOOKINGS), exist_ok=True)
+            new = not os.path.exists(BOOKINGS)
+            with open(BOOKINGS, "a", newline="", encoding="utf-8-sig") as fh:
+                w = csv.writer(fh)
+                if new:
+                    w.writerow(["время", "имя", "контакт", "тема", "сообщение"])
+                w.writerow(row)
         self.redirect("/book?sent=1")
 
     def log_message(self, *a):

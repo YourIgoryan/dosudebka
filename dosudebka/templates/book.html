@@ -1,9 +1,0 @@
-<h1>Запись на консультацию</h1>{{message}}
-<form method="post" action="/book">
-<label for="name">Имя</label><input id="name" name="name" required maxlength="80" value="{{name}}" autocomplete="name">
-<label for="contact">Telegram или телефон</label><input id="contact" name="contact" required maxlength="80" value="{{contact}}" placeholder="@username или +7...">
-<label for="topic">Что нужно</label><select id="topic" name="topic">{{options}}</select>
-<label for="msg">Коротко о ситуации</label><textarea id="msg" name="msg" rows="5" maxlength="1500" placeholder="Сумма, срок, есть ли договор и переписка">{{msg}}</textarea>
-<input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
-<label class="chk"><input type="checkbox" name="consent" value="1" required><span>Согласен на обработку персональных данных для связи по заявке (152-ФЗ). Данные не передаются третьим лицам.</span></label>
-<p><button class="btn" type="submit">Отправить заявку</button></p></form>
