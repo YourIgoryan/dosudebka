@@ -1,0 +1,4 @@
+__pycache__/
+*.pyc
+data/bookings.csv
+.DS_Store
